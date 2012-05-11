@@ -7,5 +7,5 @@ Simple kestrel client in Scala
 ```sh
 git clone git@github.com:yabuchin/kestrelclient.git
 cd kestrelclient
-sbt test
+./sbt test
 ```
