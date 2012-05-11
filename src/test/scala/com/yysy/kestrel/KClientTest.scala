@@ -4,13 +4,13 @@ import org.scalatest.FunSuite
 
 class KClientTest extends FunSuite {
 
-  val queuename = "foo"
+  val queueName = "foo"
   val v = "abc"
   val kclient = new KClient("localhost:22133")
 
   test("Set and Get") {
-    kclient.set(queuename, v)
-    val value = kclient.get(queuename)
+    kclient.set(queueName, v)
+    val value = kclient.get(queueName)
 
     println("value: " + value)
     assert(value == v)
@@ -18,7 +18,7 @@ class KClientTest extends FunSuite {
 
   test("empty get") {
     intercept[NoSuchElementException] {
-      kclient.get(queuename)
+      kclient.get(queueName)
     }
   }
 
@@ -26,6 +26,14 @@ class KClientTest extends FunSuite {
     intercept[NoSuchElementException] {
       kclient.get("abc")
     }
+  }
+
+  test("reliable read") {
+    kclient.set(queueName, "abc")
+    kclient.set(queueName, "def")
+    kclient.set(queueName, "ggg")
+
+    kclient.read(queueName)
   }
 
 }
