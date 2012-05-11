@@ -1,4 +1,4 @@
-package com.yabuchin.kestrel
+package com.yysy.kestrel
 
 import com.twitter.conversions.time._
 import com.twitter.finagle.builder.ClientBuilder
@@ -31,7 +31,7 @@ import org.jboss.netty.buffer.ChannelBuffers
  */
 class KClient(val hosts: Seq[String]) {
 
-  def this(host:String) = this(Seq(host))
+  def this(host: String) = this(Seq(host))
 
   private val stopped = new AtomicBoolean(false)
 
@@ -46,18 +46,18 @@ class KClient(val hosts: Seq[String]) {
         .buildFactory())
   }
 
-  private def getRandomHostIndex:Int = scala.util.Random.nextInt(NumHosts)
+  private def getRandomHostIndex: Int = scala.util.Random.nextInt(NumHosts)
 
   def deletQueue(queuename: String) = clients.foreach(_.delete(queuename))
 
-  def set(key:String, v:String){
+  def set(key: String, v: String) {
     val value = ChannelBuffers.wrappedBuffer(v.getBytes)
     clients(getRandomHostIndex).set(key, value, Time.fromMilliseconds(0))
   }
 
-  def get(key:String): String = get(key, 0)
+  def get(key: String): String = get(key, 0)
 
-  def get(key:String, waitTime: Int): String = {
+  def get(key: String, waitTime: Int): String = {
     val waitUpTo = Duration(waitTime, TimeUnit.MILLISECONDS)
     clients(getRandomHostIndex).get(key, waitUpTo)() match {
       case Some(value) => value.toString(CharsetUtil.UTF_8)
@@ -95,12 +95,12 @@ class KClient(val hosts: Seq[String]) {
     close(readHandle)
   }
 
-  private def close(readHandle: ReadHandle){
+  private def close(readHandle: ReadHandle) {
     readHandle.close
     close
   }
 
-  def close{
+  def close {
     stopped.set(true)
     clients foreach {
       _.close()

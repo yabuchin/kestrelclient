@@ -1,5 +1,6 @@
+package com.yysy.kestrel
+
 import org.scalatest.FunSuite
-import com.yabuchin.kestrel.KClient
 
 class KClientTest extends FunSuite {
 
@@ -16,13 +17,13 @@ class KClientTest extends FunSuite {
   }
 
   test("empty get") {
-    intercept[NoSuchElementException]{
+    intercept[NoSuchElementException] {
       kclient.get(queuename)
     }
   }
 
   test("get from non-existent queue") {
-    intercept[NoSuchElementException]{
+    intercept[NoSuchElementException] {
       kclient.get("abc")
     }
   }
