@@ -1,21 +1,15 @@
-package com.yysy.kestrel
+package com.comnus.kestrel
 
 import org.scalatest.FunSuite
 import actors.Actor
-import com.twitter.conversions.time._
-import com.twitter.finagle.builder.ClientBuilder
-import com.twitter.finagle.kestrel.protocol._
-import com.twitter.util.Time
-import org.jboss.netty.buffer.ChannelBuffers
 
 class KClientTest extends FunSuite {
 
   val queueName = "foo"
   val v = "abc"
-  val kclient = new KClient("localhost:22133")
-
-  implicit def stringToChannelBuffer(string: String) =
-    ChannelBuffers.wrappedBuffer(string.getBytes)
+  val host = "localhost:22133"
+  val connection = 2
+  val kclient = new KClient(host, connection)
 
   test("Set and Get") {
     kclient.flush(queueName)
@@ -46,15 +40,36 @@ class KClientTest extends FunSuite {
     assert(kclient.get(queueName) == None)
   }
 
-  /*
-  test("wait") {
-    Actor.actor{
+  test("block fetch") {
+    kclient.flush(queueName)
+
+    Actor.actor {
       Thread.sleep(1000)
       kclient.set(queueName, "def")
     }
 
-    println(kclient.get(queueName, 3000))
+    assert(kclient.get(queueName, 5000).get == "def")
   }
-  */
+
+  test("read reliably") {
+    kclient.flush(queueName)
+
+    kclient.set(queueName, "aaa")
+    kclient.set(queueName, "bbb")
+
+    val results = kclient.read(queueName, 10, 2000)
+
+    println("results size: " + results.size)
+    assert(results.size == 2)
+    assert(results(0).get == "aaa")
+    assert(results(1).get == "bbb")
+  }
+
+  test("close") {
+    kclient.close
+    intercept[com.twitter.finagle.ServiceClosedException](
+      kclient.get(queueName)
+    )
+  }
 
 }
